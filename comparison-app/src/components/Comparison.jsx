@@ -3,6 +3,7 @@ import axios from "axios";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
+  const [currencyExchange, setCurrencyExchange] = useState([]);
   const [selectedProviderName, setSelectedProviderName] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
 
@@ -24,8 +25,28 @@ const Comparison = () => {
       });
   }, []);
 
+  /** This useEffect fetches currency exchange data from the API when the
+   * component mounts. */
+  useEffect(() => {
+    const headers = { "auth-key": "590e3e17b6a26a8fcda726e2a91520e476e2c894" };
+    console.log("useEffect called");
+
+    axios
+      .get("https://substantive.pythonanywhere.com/exchange_rates", {
+        headers,
+      })
+      .then((response) => {
+        console.log(response.data);
+        setCurrencyExchange(response.data.exchange_rates);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+  console.log("exchange rate:", currencyExchange);
+
   /** Extract unique provider names from the fetched data, excluding
-   * duplicates, so that a list of provider names is concise */
+   * duplicates, so that a list shows overall providers */
   const uniqueProviderNames = [
     ...new Set(
       allBenchmarks.map((uniqueBenchmark) => uniqueBenchmark.provider_name)
@@ -39,16 +60,12 @@ const Comparison = () => {
     setSelectedProviderName(providerName);
   };
 
+  /** triggers the function when the button is clicked, to show the year,
+   * payment and benchmark of the selected provider name */
   const handleYearClick = (clickedYear) => {
     console.log("clicked year:", clickedYear);
     setSelectedYear(clickedYear);
   };
-
-  // Filter the benchmarks based on the selected provider name that was clicked
-  const filteredData = allBenchmarks.filter(
-    (benchmark) => benchmark.provider_name === selectedProviderName
-  );
-  console.log(selectedProviderName);
 
   // Filter the benchmarks based on the selected provider name that was clicked
   const filteredDataBasedOnYear = allBenchmarks.filter(
@@ -64,9 +81,9 @@ const Comparison = () => {
   return (
     <>
       <h1>Comparison</h1>
-
+      {/* Product provider name */}
       <div>
-        <h1>Provider names</h1>
+        <h2>Provider names</h2>
         {uniqueProviderNames.map((providerName, index) => (
           <div key={index}>
             <button onClick={() => handleButtonClick(providerName)}>
@@ -77,11 +94,24 @@ const Comparison = () => {
         ))}
       </div>
 
+      {/* Currency exchange view */}
+      <div>
+        <h2>Currency exchange</h2>
+        {currencyExchange.map((exchange, index) => (
+          <div key={index}>
+            <p>Exchange year valid: {exchange.year}</p>
+            <p>Exchange rate: {exchange.exchange_rate}</p>
+            <p>From currency id: {exchange.from_currency_id}</p>
+            <p>to currency id: {exchange.to_currency_id}</p>
+          </div>
+        ))}
+      </div>
+      {/* Renders a list of years once the provider is selected */}
       <div>
         <h2>{selectedProviderName}</h2>
         {selectedProviderName ? (
           <div>
-            <h1>Year</h1>
+            <h2>Year</h2>
             <p>Choose a year</p>
             {year.map((year, index) => (
               <div key={index}>
@@ -91,7 +121,7 @@ const Comparison = () => {
           </div>
         ) : null}
       </div>
-
+      {/* Displays filtered list of all payments/benchmarks based on selected year */}
       <div>
         {selectedProviderName && selectedYear ? (
           <div>
@@ -104,11 +134,13 @@ const Comparison = () => {
                     {benchmark.payment} <br />
                     benchmark: {benchmark.currency.symbol}
                     {benchmark.benchmark}
+                    <p>currency id: {benchmark.currency.id}</p>
+                    <p>currency name: {benchmark.currency.name}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p>no data is available.</p>
+              <p>no data available.</p>
             )}
           </div>
         ) : null}
