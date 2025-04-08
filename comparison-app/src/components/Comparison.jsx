@@ -78,6 +78,54 @@ const Comparison = () => {
   console.log("year:", year);
   console.log("selectedProviderName:", selectedProviderName);
 
+  /** Registers the Euro currency ID by finding it within product benchmark
+   * API data. */
+  const euroID = allBenchmarks.find(
+    (currency) => currency.currency.name === "EUR"
+  )?.currency.id;
+
+  const convertedToEuro = filteredDataBasedOnYear.map((benchmark) => {
+    /** checks if the currency is in Euro already, if so, it returns the
+     * benchmark as is*/
+    if (benchmark.currency.id === euroID) {
+      console.log("Already in Euro:", benchmark.payment);
+      return {
+        ...benchmark,
+        payment: benchmark.payment,
+        benchmark: benchmark.benchmark,
+      };
+    }
+
+    /**  If the currency is not Euro, find the exchange rate for conversion
+     * based on currency ID, euroId/currencyID and year*/
+    const exchangeRate = currencyExchange.find(
+      (exchange) =>
+        exchange.from_currency_id === benchmark.currency.id &&
+        exchange.to_currency_id === euroID &&
+        Number(benchmark.year) === exchange.year
+    );
+    console.log("Exchange Rate Found:", exchangeRate?.exchange_rate);
+
+    /** If an exchange rate is found, convert the payment and benchmark values
+     * using the exchange rate and return the updated benchmark object */
+    if (exchangeRate) {
+      const convertedPayment = benchmark.payment * exchangeRate.exchange_rate;
+      const convertedBenchmark =
+        benchmark.benchmark * exchangeRate.exchange_rate;
+      return {
+        ...benchmark,
+        payment: convertedPayment,
+        benchmark: convertedBenchmark,
+        currency: {
+          id: euroID,
+          name: "EUR",
+          symbol: "€",
+        },
+      };
+    }
+    return benchmark; // Return the original benchmark if no exchange rate is found
+  });
+
   return (
     <>
       <h1>Comparison</h1>
@@ -94,18 +142,6 @@ const Comparison = () => {
         ))}
       </div>
 
-      {/* Currency exchange view */}
-      <div>
-        <h2>Currency exchange</h2>
-        {currencyExchange.map((exchange, index) => (
-          <div key={index}>
-            <p>Exchange year valid: {exchange.year}</p>
-            <p>Exchange rate: {exchange.exchange_rate}</p>
-            <p>From currency id: {exchange.from_currency_id}</p>
-            <p>to currency id: {exchange.to_currency_id}</p>
-          </div>
-        ))}
-      </div>
       {/* Renders a list of years once the provider is selected */}
       <div>
         <h2>{selectedProviderName}</h2>
@@ -121,19 +157,18 @@ const Comparison = () => {
           </div>
         ) : null}
       </div>
-      {/* Displays filtered list of all payments/benchmarks based on selected year */}
+
+      {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
       <div>
         {selectedProviderName && selectedYear ? (
           <div>
-            {filteredDataBasedOnYear && filteredDataBasedOnYear.length > 0 ? (
+            {convertedToEuro && convertedToEuro.length > 0 ? (
               <div>
-                {filteredDataBasedOnYear.map((benchmark) => (
+                {convertedToEuro.map((benchmark) => (
                   <div key={benchmark.id}>
                     <p>{benchmark.provider_name}</p>
-                    <p>{benchmark.year}</p> payment: {benchmark.currency.symbol}
-                    {benchmark.payment} <br />
-                    benchmark: {benchmark.currency.symbol}
-                    {benchmark.benchmark}
+                    <p>{benchmark.year}</p> payment: €{benchmark.payment} <br />
+                    benchmark: €{benchmark.benchmark}
                     <p>currency id: {benchmark.currency.id}</p>
                     <p>currency name: {benchmark.currency.name}</p>
                   </div>
