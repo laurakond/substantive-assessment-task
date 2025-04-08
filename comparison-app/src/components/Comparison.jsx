@@ -126,6 +126,22 @@ const Comparison = () => {
     return benchmark; // Return the original benchmark if no exchange rate is found
   });
 
+  // Calculates total payment per year
+  const testSumPayment = convertedToEuro.reduce(
+    (accumulator, benchmark) => accumulator + benchmark.payment,
+    0,
+    0
+  );
+  console.log("test sum payment: ", testSumPayment);
+
+  // Calculates total benchmark per year
+  const testSumBenchmark = convertedToEuro.reduce(
+    (accumulator, benchmark) => accumulator + benchmark.benchmark,
+    0,
+    0
+  );
+  console.log("test sum payment: ", testSumBenchmark);
+
   return (
     <>
       <h1>Comparison</h1>
