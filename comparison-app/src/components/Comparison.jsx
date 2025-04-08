@@ -149,11 +149,13 @@ const Comparison = () => {
           <div>
             <h2>Year</h2>
             <p>Choose a year</p>
-            {year.map((year, index) => (
-              <div key={index}>
-                <button onClick={() => handleYearClick(year)}>{year}</button>
-              </div>
-            ))}
+            {year
+              .sort((a, b) => a - b)
+              .map((year, index) => (
+                <div key={index}>
+                  <button onClick={() => handleYearClick(year)}>{year}</button>
+                </div>
+              ))}
           </div>
         ) : null}
       </div>
