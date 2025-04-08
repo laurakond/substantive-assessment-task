@@ -109,13 +109,16 @@ const Comparison = () => {
     /** If an exchange rate is found, convert the payment and benchmark values
      * using the exchange rate and return the updated benchmark object */
     if (exchangeRate) {
-      const convertedPayment = benchmark.payment * exchangeRate.exchange_rate;
+      const convertedPayment =
+        (Math.round(benchmark.payment * exchangeRate.exchange_rate) * 100) /
+        100;
       const convertedBenchmark =
-        benchmark.benchmark * exchangeRate.exchange_rate;
+        (Math.round(benchmark.benchmark * exchangeRate.exchange_rate) * 100) /
+        100;
       return {
         ...benchmark,
-        payment: convertedPayment,
-        benchmark: convertedBenchmark,
+        payment: convertedPayment, // Round to 2 decimal places
+        benchmark: convertedBenchmark, // Round to 2 decimal places
         currency: {
           id: euroID,
           name: "EUR",
@@ -127,20 +130,20 @@ const Comparison = () => {
   });
 
   // Calculates total payment per year
-  const testSumPayment = convertedToEuro.reduce(
+  const totalSumPayment = convertedToEuro.reduce(
     (accumulator, benchmark) => accumulator + benchmark.payment,
     0,
     0
   );
-  console.log("test sum payment: ", testSumPayment);
+  console.log("test sum payment: ", totalSumPayment);
 
   // Calculates total benchmark per year
-  const testSumBenchmark = convertedToEuro.reduce(
+  const totalSumBenchmark = convertedToEuro.reduce(
     (accumulator, benchmark) => accumulator + benchmark.benchmark,
     0,
     0
   );
-  console.log("test sum payment: ", testSumBenchmark);
+  console.log("test sum payment: ", totalSumBenchmark);
 
   return (
     <>
@@ -165,6 +168,7 @@ const Comparison = () => {
           <div>
             <h2>Year</h2>
             <p>Choose a year</p>
+            <h3>{selectedYear} </h3>
             {year
               .sort((a, b) => a - b)
               .map((year, index) => (
@@ -182,15 +186,9 @@ const Comparison = () => {
           <div>
             {convertedToEuro && convertedToEuro.length > 0 ? (
               <div>
-                {convertedToEuro.map((benchmark) => (
-                  <div key={benchmark.id}>
-                    <p>{benchmark.provider_name}</p>
-                    <p>{benchmark.year}</p> payment: €{benchmark.payment} <br />
-                    benchmark: €{benchmark.benchmark}
-                    <p>currency id: {benchmark.currency.id}</p>
-                    <p>currency name: {benchmark.currency.name}</p>
-                  </div>
-                ))}
+                {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
+                <h3>Total Payment: €{totalSumPayment}</h3>
+                <h3>Total Benchmark: €{totalSumBenchmark}</h3>
               </div>
             ) : (
               <p>no data available.</p>
