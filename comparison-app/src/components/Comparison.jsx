@@ -191,7 +191,7 @@ const Comparison = () => {
                 <h3>Total Benchmark: €{totalSumBenchmark}</h3>
               </div>
             ) : (
-              <p>no data available.</p>
+              <p>No data available.</p>
             )}
           </div>
         ) : null}
