@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import BarChart from "./BarChart";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
@@ -132,7 +133,6 @@ const Comparison = () => {
   // Calculates total payment per year
   const totalSumPayment = convertedToEuro.reduce(
     (accumulator, benchmark) => accumulator + benchmark.payment,
-    0,
     0
   );
   console.log("test sum payment: ", totalSumPayment);
@@ -140,7 +140,6 @@ const Comparison = () => {
   // Calculates total benchmark per year
   const totalSumBenchmark = convertedToEuro.reduce(
     (accumulator, benchmark) => accumulator + benchmark.benchmark,
-    0,
     0
   );
   console.log("test sum payment: ", totalSumBenchmark);
@@ -195,6 +194,9 @@ const Comparison = () => {
             )}
           </div>
         ) : null}
+      </div>
+      <div>
+        <BarChart payment={totalSumPayment} benchmark={totalSumBenchmark} />
       </div>
     </>
   );

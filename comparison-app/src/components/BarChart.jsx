@@ -9,7 +9,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { BarChartData } from "./TestData.jsx";
 
 ChartJS.register(
   CategoryScale,
@@ -20,15 +19,30 @@ ChartJS.register(
   Legend
 );
 
-export const BarChart = () => {
+const BarChart = ({ payment, benchmark }) => {
+  const data = {
+    labels: ["Total"],
+    datasets: [
+      {
+        label: "Payment (€)",
+        data: [payment],
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+      },
+      {
+        label: "Benchmark (€)",
+        data: [benchmark],
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
   const options = {
     responsive: true,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "Example Chart" },
+      title: { display: true, text: "Total payment vs Total benchmark" },
     },
   };
-  return <Bar options={options} data={BarChartData} />;
+  return <Bar options={options} data={data} />;
 };
 
 export default BarChart;
