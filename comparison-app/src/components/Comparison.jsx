@@ -3,12 +3,16 @@ import axios from "axios";
 import BarChart from "./BarChart";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
   const [currencyExchange, setCurrencyExchange] = useState([]);
-  const [selectedProviderName, setSelectedProviderName] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedProviderName, setSelectedProviderName] =
+    useState("Company Name");
+  const [selectedYear, setSelectedYear] = useState("Select Year");
 
   /** This useEffect fetches product benchmark data from the API when the
    * component mounts. */
@@ -66,7 +70,6 @@ const Comparison = () => {
   /** triggers the function when the button is clicked, to show the year,
    * payment and benchmark of the selected provider name */
   const handleYearClick = (clickedYear) => {
-    console.log("clicked year:", clickedYear);
     setSelectedYear(clickedYear);
   };
 
@@ -148,104 +151,110 @@ const Comparison = () => {
 
   return (
     <>
-      <h1>Comparison</h1>
-      {/* Product provider name */}
-      <div>
-        <h2>Provider names</h2>
-        {/* {uniqueProviderNames.map((providerName, index) => (
-          <div key={index} style={{ display: "inline-block" }}>
-            <button onClick={() => handleButtonClick(providerName)}>
-              {providerName}
-            </button>
-            <p></p>
-          </div>
-        ))} */}
-        {["Company Name"].map((variant) => (
-          <DropdownButton
-            id={`dropdown-variants-${variant}`}
-            variant={variant.toLowerCase()}
-            title={variant}
-          >
-            <Dropdown.Item eventKey="1">
-              {uniqueProviderNames.map((providerName, index) => (
-                <div key={index}>
-                  <button onClick={() => handleButtonClick(providerName)}>
-                    {providerName}
-                  </button>
-                  <p></p>
+      <Container className="py-5">
+        <div className="text-center">
+          <h1>Comparison App</h1>
+          <p className="align-center my-4">
+            This is a simple comparison app that allows you to compare the
+            payment and benchmark values of different product providers. The app
+            fetches data from an API and displays the results in a bar chart
+            format. You can select a provider and a year to see the payment and
+            benchmark values in Euro.
+          </p>
+        </div>
+        <Row className="align-items-center justify-content-center">
+          <Col>
+            {/* Product provider name */}
+            <div>
+              <h2>Select the company</h2>
+              <Dropdown>
+                <Dropdown.Toggle variant="info" id="dropdown-basic">
+                  {selectedProviderName}
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  {uniqueProviderNames.map((providerName, index) => (
+                    <Dropdown.Item
+                      key={index}
+                      onClick={() => handleButtonClick(providerName)}
+                    >
+                      {providerName}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+
+            {/* Renders a list of years once the provider is selected */}
+            <div>
+              {selectedProviderName ? (
+                <div>
+                  <h2>Select the year</h2>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="info" id="dropdown-basic">
+                      {selectedYear}
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      {year
+                        .sort((a, b) => a - b)
+                        .map((year, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() => handleYearClick(year)}
+                          >
+                            {year}
+                          </Dropdown.Item>
+                        ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </div>
-              ))}
-            </Dropdown.Item>
-          </DropdownButton>
-        ))}
-      </div>
+              ) : null}
+            </div>
 
-      {/* Renders a list of years once the provider is selected */}
-      <div>
-        <h2>{selectedProviderName}</h2>
-        {selectedProviderName ? (
-          <div>
-            <h2>Year</h2>
-            <p>Choose a year</p>
-            <h3>{selectedYear} </h3>
-            {["Year"].map((variant) => (
-              <DropdownButton
-                id={`dropdown-variants-${variant}`}
-                variant={variant.toLowerCase()}
-                title={variant}
-              >
-                <Dropdown.Item eventKey="1">
-                  {year
-                    .sort((a, b) => a - b)
-                    .map((year, index) => (
-                      <div key={index}>
-                        <button onClick={() => handleYearClick(year)}>
-                          {year}
-                        </button>
-                      </div>
-                    ))}
-                </Dropdown.Item>
-              </DropdownButton>
-            ))}
-          </div>
-        ) : null}
-      </div>
-
-      <div></div>
-
-      {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
-      <div>
-        {selectedProviderName && selectedYear ? (
-          <div>
-            {convertedToEuro && convertedToEuro.length > 0 ? (
-              <div>
-                {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
-                <h3>Total Payment: €{totalSumPayment}</h3>
-                <h3>Total Benchmark: €{totalSumBenchmark}</h3>
-                <h3>
-                  Difference: €{totalSumPayment - totalSumBenchmark}
-                  {totalSumPayment - totalSumBenchmark < 0 ? (
-                    <span style={{ color: "red" }}> (Under benchmark)</span>
+            {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
+            <div>
+              {selectedProviderName && selectedYear ? (
+                <div>
+                  {convertedToEuro && convertedToEuro.length > 0 ? (
+                    <div className="py-4">
+                      {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
+                      <h4>Total Payment: €{totalSumPayment}</h4>
+                      <h4>Total Benchmark: €{totalSumBenchmark}</h4>
+                      <h4>
+                        Difference: €{totalSumPayment - totalSumBenchmark}
+                        {totalSumPayment - totalSumBenchmark < 0 ? (
+                          <span style={{ color: "red" }}>
+                            {" "}
+                            (Under benchmark)
+                          </span>
+                        ) : (
+                          <span style={{ color: "green" }}>
+                            {" "}
+                            (Over benchmark)
+                          </span>
+                        )}
+                      </h4>
+                    </div>
                   ) : (
-                    <span style={{ color: "green" }}> (Over benchmark)</span>
+                    <p>No data available.</p>
                   )}
-                </h3>
-              </div>
-            ) : (
-              <p>No data available.</p>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div>
-        <BarChart
-          payment={totalSumPayment}
-          benchmark={totalSumBenchmark}
-          selectedYear={selectedYear}
-          selectedProviderName={selectedProviderName}
-        />
-      </div>
+                </div>
+              ) : null}
+            </div>
+          </Col>
+          <Col>
+            <div className="chart-container">
+              <BarChart
+                payment={totalSumPayment}
+                benchmark={totalSumBenchmark}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Container>
     </>
   );
 };
