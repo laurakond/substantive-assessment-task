@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BarChart from "./BarChart";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
@@ -150,13 +152,31 @@ const Comparison = () => {
       {/* Product provider name */}
       <div>
         <h2>Provider names</h2>
-        {uniqueProviderNames.map((providerName, index) => (
+        {/* {uniqueProviderNames.map((providerName, index) => (
           <div key={index} style={{ display: "inline-block" }}>
             <button onClick={() => handleButtonClick(providerName)}>
               {providerName}
             </button>
             <p></p>
           </div>
+        ))} */}
+        {["Company Name"].map((variant) => (
+          <DropdownButton
+            id={`dropdown-variants-${variant}`}
+            variant={variant.toLowerCase()}
+            title={variant}
+          >
+            <Dropdown.Item eventKey="1">
+              {uniqueProviderNames.map((providerName, index) => (
+                <div key={index}>
+                  <button onClick={() => handleButtonClick(providerName)}>
+                    {providerName}
+                  </button>
+                  <p></p>
+                </div>
+              ))}
+            </Dropdown.Item>
+          </DropdownButton>
         ))}
       </div>
 
@@ -168,16 +188,30 @@ const Comparison = () => {
             <h2>Year</h2>
             <p>Choose a year</p>
             <h3>{selectedYear} </h3>
-            {year
-              .sort((a, b) => a - b)
-              .map((year, index) => (
-                <div key={index} style={{ display: "inline-block" }}>
-                  <button onClick={() => handleYearClick(year)}>{year}</button>
-                </div>
-              ))}
+            {["Year"].map((variant) => (
+              <DropdownButton
+                id={`dropdown-variants-${variant}`}
+                variant={variant.toLowerCase()}
+                title={variant}
+              >
+                <Dropdown.Item eventKey="1">
+                  {year
+                    .sort((a, b) => a - b)
+                    .map((year, index) => (
+                      <div key={index}>
+                        <button onClick={() => handleYearClick(year)}>
+                          {year}
+                        </button>
+                      </div>
+                    ))}
+                </Dropdown.Item>
+              </DropdownButton>
+            ))}
           </div>
         ) : null}
       </div>
+
+      <div></div>
 
       {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
       <div>
@@ -203,6 +237,7 @@ const Comparison = () => {
           </div>
         ) : null}
       </div>
+
       <div>
         <BarChart
           payment={totalSumPayment}
