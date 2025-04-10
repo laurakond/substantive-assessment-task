@@ -151,7 +151,7 @@ const Comparison = () => {
       <div>
         <h2>Provider names</h2>
         {uniqueProviderNames.map((providerName, index) => (
-          <div key={index}>
+          <div key={index} style={{ display: "inline-block" }}>
             <button onClick={() => handleButtonClick(providerName)}>
               {providerName}
             </button>
@@ -171,7 +171,7 @@ const Comparison = () => {
             {year
               .sort((a, b) => a - b)
               .map((year, index) => (
-                <div key={index}>
+                <div key={index} style={{ display: "inline-block" }}>
                   <button onClick={() => handleYearClick(year)}>{year}</button>
                 </div>
               ))}
@@ -188,6 +188,14 @@ const Comparison = () => {
                 {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
                 <h3>Total Payment: €{totalSumPayment}</h3>
                 <h3>Total Benchmark: €{totalSumBenchmark}</h3>
+                <h3>
+                  Difference: €{totalSumPayment - totalSumBenchmark}
+                  {totalSumPayment - totalSumBenchmark < 0 ? (
+                    <span style={{ color: "red" }}> (Under benchmark)</span>
+                  ) : (
+                    <span style={{ color: "green" }}> (Over benchmark)</span>
+                  )}
+                </h3>
               </div>
             ) : (
               <p>No data available.</p>
@@ -196,7 +204,12 @@ const Comparison = () => {
         ) : null}
       </div>
       <div>
-        <BarChart payment={totalSumPayment} benchmark={totalSumBenchmark} />
+        <BarChart
+          payment={totalSumPayment}
+          benchmark={totalSumBenchmark}
+          selectedYear={selectedYear}
+          selectedProviderName={selectedProviderName}
+        />
       </div>
     </>
   );
