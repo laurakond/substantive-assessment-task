@@ -53,7 +53,10 @@ const BarChart = ({
       },
       title: {
         display: true,
-        text: `${selectedProviderName}: ${selectedYear}`,
+        text:
+          selectedProviderName && selectedYear
+            ? `${selectedProviderName}: ${selectedYear}`
+            : "Company: Year",
       },
     },
   };
