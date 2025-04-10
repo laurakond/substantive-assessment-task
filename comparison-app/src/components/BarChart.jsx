@@ -19,7 +19,12 @@ ChartJS.register(
   Legend
 );
 
-const BarChart = ({ payment, benchmark }) => {
+const BarChart = ({
+  payment,
+  benchmark,
+  selectedYear,
+  selectedProviderName,
+}) => {
   const data = {
     labels: ["Payment (€)", "Benchmark (€)"],
     datasets: [
@@ -46,7 +51,10 @@ const BarChart = ({ payment, benchmark }) => {
           },
         },
       },
-      title: { display: true, text: "Total payment vs Total benchmark" },
+      title: {
+        display: true,
+        text: `${selectedProviderName}: ${selectedYear}`,
+      },
     },
   };
   return <Bar options={options} data={data} />;
