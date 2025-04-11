@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BarChart from "./BarChart";
 import Dropdown from "react-bootstrap/Dropdown";
-import DropdownButton from "react-bootstrap/DropdownButton";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -52,14 +51,16 @@ const Comparison = () => {
   }, []);
   console.log("exchange rate:", currencyExchange);
 
-  /** Extract unique provider names from the fetched data, excluding
-   * duplicates, so that a list shows overall providers */
-  const uniqueProviderNames = [
-    ...new Set(
-      allBenchmarks.map((uniqueBenchmark) => uniqueBenchmark.provider_name)
-    ),
-  ];
+  /** Extract unique provider names and years from the fetched data, excluding
+   * duplicates, so that a list shows overall providers/years */
+  const getUniqueLists = (array, prop) => {
+    return [...new Set(array.map((item) => item[prop]))];
+  };
+
+  const uniqueProviderNames = getUniqueLists(allBenchmarks, "provider_name");
+  const uniqueYears = getUniqueLists(allBenchmarks, "year");
   console.log("unique provider names: ", uniqueProviderNames);
+  console.log(" unique year:", uniqueYears);
 
   /** triggers the function when the button is clicked, to show selected
    * provider name*/
@@ -78,11 +79,6 @@ const Comparison = () => {
     (y) => y.year === selectedYear && y.provider_name === selectedProviderName
   );
   console.log("filtered data based on year:", filteredDataBasedOnYear);
-
-  // Extract unique provider names from the fetched data, excluding duplicates
-  const year = [...new Set(allBenchmarks.map((uniqueYear) => uniqueYear.year))];
-  console.log("year:", year);
-  console.log("selectedProviderName:", selectedProviderName);
 
   /** Registers the Euro currency ID by finding it within product benchmark
    * API data. */
@@ -168,7 +164,7 @@ const Comparison = () => {
             <div>
               <h2>Select the company</h2>
               <Dropdown>
-                <Dropdown.Toggle variant="info" id="dropdown-basic">
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
                   {selectedProviderName}
                 </Dropdown.Toggle>
 
@@ -191,12 +187,12 @@ const Comparison = () => {
                 <div>
                   <h2>Select the year</h2>
                   <Dropdown>
-                    <Dropdown.Toggle variant="info" id="dropdown-basic">
+                    <Dropdown.Toggle variant="success" id="dropdown-basic">
                       {selectedYear}
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                      {year
+                      {uniqueYears
                         .sort((a, b) => a - b)
                         .map((year, index) => (
                           <Dropdown.Item
@@ -211,7 +207,20 @@ const Comparison = () => {
                 </div>
               ) : null}
             </div>
-
+          </Col>
+          <Col>
+            <div className="chart-container">
+              <BarChart
+                payment={totalSumPayment}
+                benchmark={totalSumBenchmark}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
             {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
             <div>
               {selectedProviderName && selectedYear ? (
@@ -241,16 +250,6 @@ const Comparison = () => {
                   )}
                 </div>
               ) : null}
-            </div>
-          </Col>
-          <Col>
-            <div className="chart-container">
-              <BarChart
-                payment={totalSumPayment}
-                benchmark={totalSumBenchmark}
-                selectedYear={selectedYear}
-                selectedProviderName={selectedProviderName}
-              />
             </div>
           </Col>
         </Row>
