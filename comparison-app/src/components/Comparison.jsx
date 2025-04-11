@@ -13,43 +13,45 @@ const Comparison = () => {
     useState("Company Name");
   const [selectedYear, setSelectedYear] = useState("Select Year");
 
-  /** This useEffect fetches product benchmark data from the API when the
-   * component mounts. */
   useEffect(() => {
-    const headers = { "auth-key": "590e3e17b6a26a8fcda726e2a91520e476e2c894" };
-    console.log("useEffect called");
-    axios
-      .get("https://substantive.pythonanywhere.com/product_benchmarks", {
-        headers,
-      })
-      .then((response) => {
-        console.log(response.data);
+    const fetchProductBenchmarkData = async () => {
+      try {
+        const headers = {
+          "auth-key": "590e3e17b6a26a8fcda726e2a91520e476e2c894",
+        };
+        const response = await axios.get(
+          "https://substantive.pythonanywhere.com/product_benchmarks",
+          { headers }
+        );
         setAllBenchmarks(response.data.product_benchmarks);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+        console.log("Product benchmarks fetched:", response.data);
+      } catch (error) {
+        console.error("Error fetching product benchmark data:", error);
+      }
+    };
+    fetchProductBenchmarkData();
   }, []);
 
   /** This useEffect fetches currency exchange data from the API when the
    * component mounts. */
   useEffect(() => {
-    const headers = { "auth-key": "590e3e17b6a26a8fcda726e2a91520e476e2c894" };
-    console.log("useEffect called");
-
-    axios
-      .get("https://substantive.pythonanywhere.com/exchange_rates", {
-        headers,
-      })
-      .then((response) => {
-        console.log(response.data);
+    const fetchExchangeRatesData = async () => {
+      try {
+        const headers = {
+          "auth-key": "590e3e17b6a26a8fcda726e2a91520e476e2c894",
+        };
+        const response = await axios.get(
+          "https://substantive.pythonanywhere.com/exchange_rates",
+          { headers }
+        );
         setCurrencyExchange(response.data.exchange_rates);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+        console.log("exchange rates fetched:", response.data);
+      } catch (error) {
+        console.error("Error fetching currency exchange data:", error);
+      }
+    };
+    fetchExchangeRatesData();
   }, []);
-  console.log("exchange rate:", currencyExchange);
 
   /** Extract unique provider names and years from the fetched data, excluding
    * duplicates, so that a list shows overall providers/years */
@@ -218,36 +220,36 @@ const Comparison = () => {
         <Row>
           <Col>
             {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
-            <div>
-              {selectedProviderName !== "Company Name" &&
-              selectedYear !== "Select Year" ? (
-                <div>
-                  {convertedToEuro && convertedToEuro.length > 0 ? (
-                    <div className="py-4">
-                      {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
-                      <h4>Total Payment: €{totalSumPayment}</h4>
-                      <h4>Total Benchmark: €{totalSumBenchmark}</h4>
-                      <h4>
-                        Difference: €{totalSumPayment - totalSumBenchmark}
-                        {totalSumPayment - totalSumBenchmark < 0 ? (
-                          <span style={{ color: "red" }}>
-                            {" "}
-                            (Under benchmark)
-                          </span>
-                        ) : (
-                          <span style={{ color: "green" }}>
-                            {" "}
-                            (Over benchmark)
-                          </span>
-                        )}
-                      </h4>
-                    </div>
-                  ) : (
-                    <p>No data available.</p>
-                  )}
-                </div>
-              ) : null}
-            </div>
+            {/* <div> */}
+            {selectedProviderName !== "Company Name" &&
+            selectedYear !== "Select Year" ? (
+              <div>
+                {convertedToEuro && convertedToEuro.length > 0 ? (
+                  <div className="py-4">
+                    {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
+                    <h4>Total Payment: €{totalSumPayment}</h4>
+                    <h4>Total Benchmark: €{totalSumBenchmark}</h4>
+                    <h4>
+                      Difference: €{totalSumPayment - totalSumBenchmark}
+                      {totalSumPayment - totalSumBenchmark < 0 ? (
+                        <span style={{ color: "red" }}> (Under benchmark)</span>
+                      ) : (
+                        <span style={{ color: "green" }}>
+                          {" "}
+                          (Over benchmark)
+                        </span>
+                      )}
+                    </h4>
+                  </div>
+                ) : (
+                  <p>
+                    No data available for {selectedProviderName}: {selectedYear}
+                    .
+                  </p>
+                )}
+              </div>
+            ) : null}
+            {/* </div> */}
           </Col>
         </Row>
       </Container>
