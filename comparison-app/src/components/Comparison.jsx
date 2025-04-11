@@ -64,7 +64,7 @@ const Comparison = () => {
 
   /** triggers the function when the button is clicked, to show selected
    * provider name*/
-  const handleButtonClick = (providerName) => {
+  const handleCompanyButtonClick = (providerName) => {
     setSelectedProviderName(providerName);
   };
 
@@ -119,8 +119,8 @@ const Comparison = () => {
         100;
       return {
         ...benchmark,
-        payment: convertedPayment, // Round to 2 decimal places
-        benchmark: convertedBenchmark, // Round to 2 decimal places
+        payment: convertedPayment,
+        benchmark: convertedBenchmark,
         currency: {
           id: euroID,
           name: "EUR",
@@ -131,18 +131,14 @@ const Comparison = () => {
     return benchmark; // Return the original benchmark if no exchange rate is found
   });
 
-  // Calculates total payment per year
-  const totalSumPayment = convertedToEuro.reduce(
-    (accumulator, benchmark) => accumulator + benchmark.payment,
-    0
-  );
-  console.log("test sum payment: ", totalSumPayment);
+  // Calculates total payment & benchmark figures per year
+  const totalSum = (array, prop) => {
+    return array.reduce((accumulator, item) => accumulator + item[prop], 0);
+  };
 
-  // Calculates total benchmark per year
-  const totalSumBenchmark = convertedToEuro.reduce(
-    (accumulator, benchmark) => accumulator + benchmark.benchmark,
-    0
-  );
+  const totalSumPayment = totalSum(convertedToEuro, "payment");
+  console.log("test sum payment: ", totalSumPayment);
+  const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
   console.log("test sum payment: ", totalSumBenchmark);
 
   return (
@@ -172,7 +168,7 @@ const Comparison = () => {
                   {uniqueProviderNames.map((providerName, index) => (
                     <Dropdown.Item
                       key={index}
-                      onClick={() => handleButtonClick(providerName)}
+                      onClick={() => handleCompanyButtonClick(providerName)}
                     >
                       {providerName}
                     </Dropdown.Item>
@@ -223,7 +219,8 @@ const Comparison = () => {
           <Col>
             {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
             <div>
-              {selectedProviderName && selectedYear ? (
+              {selectedProviderName !== "Company Name" &&
+              selectedYear !== "Select Year" ? (
                 <div>
                   {convertedToEuro && convertedToEuro.length > 0 ? (
                     <div className="py-4">
