@@ -8,7 +8,7 @@ const SelectCompany = ({
 }) => {
   return (
     <div>
-      <h2>Select the company</h2>
+      <h3>Select the company</h3>
       <Dropdown>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {selectedProviderName}

@@ -3,8 +3,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 
 const SelectYear = ({ selectedYear, uniqueYears, handleYearButtonClick }) => {
   return (
-    <div>
-      <h2>Select the year</h2>
+    <div className="mt-4">
+      <h3>Select the year</h3>
       <Dropdown>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {selectedYear}
