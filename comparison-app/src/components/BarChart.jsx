@@ -42,7 +42,7 @@ const BarChart = ({
         position: "top",
         labels: {
           generateLabels: (chart) => {
-            console.log("chart: ", chart);
+            // console.log("chart: ", chart);
             return chart.data.labels.map((label, index) => ({
               text: label,
               strokeStyle: chart.data.datasets[0].backgroundColor[index],

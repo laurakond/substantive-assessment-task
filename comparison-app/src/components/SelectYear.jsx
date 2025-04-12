@@ -1,7 +1,7 @@
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 
-const SelectYear = ({ selectedYear, uniqueYears, handleYearClick }) => {
+const SelectYear = ({ selectedYear, uniqueYears, handleYearButtonClick }) => {
   return (
     <div>
       <h2>Select the year</h2>
@@ -14,7 +14,10 @@ const SelectYear = ({ selectedYear, uniqueYears, handleYearClick }) => {
           {uniqueYears
             .sort((a, b) => a - b)
             .map((year, index) => (
-              <Dropdown.Item key={index} onClick={() => handleYearClick(year)}>
+              <Dropdown.Item
+                key={index}
+                onClick={() => handleYearButtonClick(year)}
+              >
                 {year}
               </Dropdown.Item>
             ))}
