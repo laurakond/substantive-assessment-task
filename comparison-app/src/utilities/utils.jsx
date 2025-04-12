@@ -15,7 +15,6 @@ export const filterBenchmarksByYearProvider = (benchmarks, year, provider) => {
     (item) => item.year === year && item.provider_name === provider
   );
 };
-// console.log("filtered data based on year:", filteredDataBasedOnYear);
 
 /** Registers the Euro currency ID by finding it within product benchmark
  * API data. */
@@ -28,7 +27,6 @@ export const getEuroID = (allBenchmarks) => {
 const isAlreadyEuro = (benchmark, euroID) => {
   return benchmark.currency.id === euroID;
 };
-// console.log("isAlreadyEuro:", isAlreadyEuro?.exchange_rate);
 
 /** find the exchange rate for conversion
  * based on currency ID, euroId/currencyID and year  */
@@ -40,7 +38,6 @@ const getExchangeRate = (benchmark, currencyExchange, euroID) => {
       Number(benchmark.year) === exchange.year
   );
 };
-// console.log("Exchange Rate Found:", getExchangeRate?.exchange_rate);
 
 /** convert the payment and benchmark values using the exchange rate and
  * return the updated benchmark object */
@@ -60,7 +57,6 @@ const convertPaymentAndBenchmarkToEuro = (benchmark, exchangeRate, euroID) => {
     },
   };
 };
-// console.log("convertedPayment:", convertPaymentAndBenchmarkToEuro?.payment);
 
 export const convertToEuro = (
   filteredDataBasedOnYear,
@@ -80,7 +76,6 @@ export const convertToEuro = (
 
     /**  If the currency is not Euro, call appropriate function*/
     const exchangeRate = getExchangeRate(benchmark, currencyExchange, euroID);
-    // console.log("Exchange Rate Found:", exchangeRate?.exchange_rate);
 
     /** If an exchange rate is found, call appropriate function */
     if (exchangeRate) {

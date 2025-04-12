@@ -33,7 +33,6 @@ const Comparison = () => {
           { headers }
         );
         setAllBenchmarks(response.data.product_benchmarks);
-        // console.log("Product benchmarks fetched:", response.data);
       } catch (error) {
         console.error("Error fetching product benchmark data:", error);
       }
@@ -54,7 +53,6 @@ const Comparison = () => {
           { headers }
         );
         setCurrencyExchange(response.data.exchange_rates);
-        // console.log("exchange rates fetched:", response.data);
       } catch (error) {
         console.error("Error fetching currency exchange data:", error);
       }
@@ -66,8 +64,6 @@ const Comparison = () => {
   const uniqueProviderNames = getUniqueLists(allBenchmarks, "provider_name");
   // Calls helper function to get a list of years
   const uniqueYears = getUniqueLists(allBenchmarks, "year");
-  // console.log("unique provider names: ", uniqueProviderNames);
-  // console.log(" unique year:", uniqueYears);
 
   /** triggers the function when the button is clicked, to show selected
    * provider name*/
@@ -87,7 +83,6 @@ const Comparison = () => {
     selectedYear,
     selectedProviderName
   );
-  // console.log("filtered data based on year:", filteredDataBasedOnYear);
 
   // Calls helper function to find euro Id and allocate it to the variable
   const euroID = getEuroID(allBenchmarks);
@@ -101,10 +96,9 @@ const Comparison = () => {
 
   // Calculates the total of all payments in that year
   const totalSumPayment = totalSum(convertedToEuro, "payment");
-  // console.log("test sum payment: ", totalSumPayment);
+
   // Calculates the total of all benchmark prices in that year
   const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
-  // console.log("test sum payment: ", totalSumBenchmark);
 
   return (
     <>
