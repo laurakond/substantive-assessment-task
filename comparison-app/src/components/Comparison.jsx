@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BarChart from "./BarChart";
-import Dropdown from "react-bootstrap/Dropdown";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import SelectCompany from "./SelectCompany";
+import SelectYear from "./SelectYear";
+import DisplayCalculations from "./DisplayCalculations";
+import {
+  convertToEuro,
+  filterBenchmarksByYearProvider,
+  getEuroID,
+  getUniqueLists,
+  totalSum,
+} from "../utilities/utils";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
@@ -24,7 +33,7 @@ const Comparison = () => {
           { headers }
         );
         setAllBenchmarks(response.data.product_benchmarks);
-        console.log("Product benchmarks fetched:", response.data);
+        // console.log("Product benchmarks fetched:", response.data);
       } catch (error) {
         console.error("Error fetching product benchmark data:", error);
       }
@@ -45,7 +54,7 @@ const Comparison = () => {
           { headers }
         );
         setCurrencyExchange(response.data.exchange_rates);
-        console.log("exchange rates fetched:", response.data);
+        // console.log("exchange rates fetched:", response.data);
       } catch (error) {
         console.error("Error fetching currency exchange data:", error);
       }
@@ -53,16 +62,12 @@ const Comparison = () => {
     fetchExchangeRatesData();
   }, []);
 
-  /** Extract unique provider names and years from the fetched data, excluding
-   * duplicates, so that a list shows overall providers/years */
-  const getUniqueLists = (array, prop) => {
-    return [...new Set(array.map((item) => item[prop]))];
-  };
-
+  // Calls helper function to get a list of company names
   const uniqueProviderNames = getUniqueLists(allBenchmarks, "provider_name");
+  // Calls helper function to get a list of years
   const uniqueYears = getUniqueLists(allBenchmarks, "year");
-  console.log("unique provider names: ", uniqueProviderNames);
-  console.log(" unique year:", uniqueYears);
+  // console.log("unique provider names: ", uniqueProviderNames);
+  // console.log(" unique year:", uniqueYears);
 
   /** triggers the function when the button is clicked, to show selected
    * provider name*/
@@ -72,76 +77,34 @@ const Comparison = () => {
 
   /** triggers the function when the button is clicked, to show the year,
    * payment and benchmark of the selected provider name */
-  const handleYearClick = (clickedYear) => {
+  const handleYearButtonClick = (clickedYear) => {
     setSelectedYear(clickedYear);
   };
 
   // Filter the benchmarks based on the selected provider name that was clicked
-  const filteredDataBasedOnYear = allBenchmarks.filter(
-    (y) => y.year === selectedYear && y.provider_name === selectedProviderName
+  const filteredDataBasedOnYear = filterBenchmarksByYearProvider(
+    allBenchmarks,
+    selectedYear,
+    selectedProviderName
   );
-  console.log("filtered data based on year:", filteredDataBasedOnYear);
+  // console.log("filtered data based on year:", filteredDataBasedOnYear);
 
-  /** Registers the Euro currency ID by finding it within product benchmark
-   * API data. */
-  const euroID = allBenchmarks.find(
-    (currency) => currency.currency.name === "EUR"
-  )?.currency.id;
+  // Calls helper function to find euro Id and allocate it to the variable
+  const euroID = getEuroID(allBenchmarks);
 
-  const convertedToEuro = filteredDataBasedOnYear.map((benchmark) => {
-    /** checks if the currency is in Euro already, if so, it returns the
-     * benchmark as is*/
-    if (benchmark.currency.id === euroID) {
-      console.log("Already in Euro:", benchmark.payment);
-      return {
-        ...benchmark,
-        payment: benchmark.payment,
-        benchmark: benchmark.benchmark,
-      };
-    }
+  // Calls helper function to convert currencies to Euro
+  const convertedToEuro = convertToEuro(
+    filteredDataBasedOnYear,
+    currencyExchange,
+    euroID
+  );
 
-    /**  If the currency is not Euro, find the exchange rate for conversion
-     * based on currency ID, euroId/currencyID and year*/
-    const exchangeRate = currencyExchange.find(
-      (exchange) =>
-        exchange.from_currency_id === benchmark.currency.id &&
-        exchange.to_currency_id === euroID &&
-        Number(benchmark.year) === exchange.year
-    );
-    console.log("Exchange Rate Found:", exchangeRate?.exchange_rate);
-
-    /** If an exchange rate is found, convert the payment and benchmark values
-     * using the exchange rate and return the updated benchmark object */
-    if (exchangeRate) {
-      const convertedPayment =
-        (Math.round(benchmark.payment * exchangeRate.exchange_rate) * 100) /
-        100;
-      const convertedBenchmark =
-        (Math.round(benchmark.benchmark * exchangeRate.exchange_rate) * 100) /
-        100;
-      return {
-        ...benchmark,
-        payment: convertedPayment,
-        benchmark: convertedBenchmark,
-        currency: {
-          id: euroID,
-          name: "EUR",
-          symbol: "€",
-        },
-      };
-    }
-    return benchmark; // Return the original benchmark if no exchange rate is found
-  });
-
-  // Calculates total payment & benchmark figures per year
-  const totalSum = (array, prop) => {
-    return array.reduce((accumulator, item) => accumulator + item[prop], 0);
-  };
-
+  // Calculates the total of all payments in that year
   const totalSumPayment = totalSum(convertedToEuro, "payment");
-  console.log("test sum payment: ", totalSumPayment);
+  // console.log("test sum payment: ", totalSumPayment);
+  // Calculates the total of all benchmark prices in that year
   const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
-  console.log("test sum payment: ", totalSumBenchmark);
+  // console.log("test sum payment: ", totalSumBenchmark);
 
   return (
     <>
@@ -159,97 +122,52 @@ const Comparison = () => {
         <Row className="align-items-center justify-content-center">
           <Col>
             {/* Product provider name */}
-            <div>
-              <h2>Select the company</h2>
-              <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic">
-                  {selectedProviderName}
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  {uniqueProviderNames.map((providerName, index) => (
-                    <Dropdown.Item
-                      key={index}
-                      onClick={() => handleCompanyButtonClick(providerName)}
-                    >
-                      {providerName}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-
+            <SelectCompany
+              selectedProviderName={selectedProviderName}
+              uniqueProviderNames={uniqueProviderNames}
+              handleCompanyButtonClick={handleCompanyButtonClick}
+            />
             {/* Renders a list of years once the provider is selected */}
             <div>
               {selectedProviderName ? (
-                <div>
-                  <h2>Select the year</h2>
-                  <Dropdown>
-                    <Dropdown.Toggle variant="success" id="dropdown-basic">
-                      {selectedYear}
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu>
-                      {uniqueYears
-                        .sort((a, b) => a - b)
-                        .map((year, index) => (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={() => handleYearClick(year)}
-                          >
-                            {year}
-                          </Dropdown.Item>
-                        ))}
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </div>
+                <SelectYear
+                  selectedYear={selectedYear}
+                  uniqueYears={uniqueYears}
+                  handleYearButtonClick={handleYearButtonClick}
+                />
               ) : null}
             </div>
           </Col>
           <Col>
-            <div className="chart-container">
-              <BarChart
-                payment={totalSumPayment}
-                benchmark={totalSumBenchmark}
-                selectedYear={selectedYear}
-                selectedProviderName={selectedProviderName}
-              />
-            </div>
+            {/* <div className="chart-container"> */}
+            <BarChart
+              payment={totalSumPayment}
+              benchmark={totalSumBenchmark}
+              selectedYear={selectedYear}
+              selectedProviderName={selectedProviderName}
+            />
+            {/* </div> */}
           </Col>
         </Row>
         <Row>
           <Col>
-            {/* Displays converted payment and benchmark values in Euro  based on selected year and company*/}
-            {/* <div> */}
+            {/* Displays converted payment and benchmark values in Euro  based
+            on selected year and company*/}
             {selectedProviderName !== "Company Name" &&
             selectedYear !== "Select Year" ? (
               <div>
                 {convertedToEuro && convertedToEuro.length > 0 ? (
-                  <div className="py-4">
-                    {/** Displays the total payment and benchmark values in Euro for the selected year and provider name */}
-                    <h4>Total Payment: €{totalSumPayment}</h4>
-                    <h4>Total Benchmark: €{totalSumBenchmark}</h4>
-                    <h4>
-                      Difference: €{totalSumPayment - totalSumBenchmark}
-                      {totalSumPayment - totalSumBenchmark < 0 ? (
-                        <span style={{ color: "red" }}> (Under benchmark)</span>
-                      ) : (
-                        <span style={{ color: "green" }}>
-                          {" "}
-                          (Over benchmark)
-                        </span>
-                      )}
-                    </h4>
-                  </div>
+                  <DisplayCalculations
+                    totalSumPayment={totalSumPayment}
+                    totalSumBenchmark={totalSumBenchmark}
+                  />
                 ) : (
                   <p>
-                    No data available for {selectedProviderName}: {selectedYear}
-                    .
+                    No data available for {selectedProviderName} {selectedYear}.
                   </p>
                 )}
               </div>
             ) : null}
-            {/* </div> */}
           </Col>
         </Row>
       </Container>
