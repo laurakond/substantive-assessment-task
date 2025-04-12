@@ -16,6 +16,11 @@ export const filterBenchmarksByYearProvider = (benchmarks, year, provider) => {
   );
 };
 
+// Filter data by provider only
+export const filterBenchmarksByProvider = (benchmarks, provider) => {
+  return benchmarks.filter((item) => item.provider_name === provider);
+};
+
 /** Registers the Euro currency ID by finding it within product benchmark
  * API data. */
 export const getEuroID = (allBenchmarks) => {
@@ -63,9 +68,35 @@ export const convertToEuro = (
   currencyExchange,
   euroID
 ) => {
-  return filteredDataBasedOnYear.map((benchmark) => {
-    /** checks if the currency is in Euro already, returns the
-     * benchmark as is*/
+  if (Array.isArray(filteredDataBasedOnYear)) {
+    return filteredDataBasedOnYear.map((benchmark) => {
+      /** checks if the currency is in Euro already, returns the
+       * benchmark as is*/
+      if (isAlreadyEuro(benchmark, euroID)) {
+        return {
+          ...benchmark,
+          payment: benchmark.payment,
+          benchmark: benchmark.benchmark,
+        };
+      }
+
+      /**  If the currency is not Euro, call appropriate function*/
+      const exchangeRate = getExchangeRate(benchmark, currencyExchange, euroID);
+
+      /** If an exchange rate is found, call appropriate function */
+      if (exchangeRate) {
+        return convertPaymentAndBenchmarkToEuro(
+          benchmark,
+          exchangeRate,
+          euroID
+        );
+      }
+      return benchmark; // Return the original benchmark if no exchange rate found
+    });
+  } else {
+    // If it's a single value (i.e., one benchmark/payment object), process it directly
+    const benchmark = filteredDataBasedOnYear;
+
     if (isAlreadyEuro(benchmark, euroID)) {
       return {
         ...benchmark,
@@ -74,13 +105,10 @@ export const convertToEuro = (
       };
     }
 
-    /**  If the currency is not Euro, call appropriate function*/
     const exchangeRate = getExchangeRate(benchmark, currencyExchange, euroID);
-
-    /** If an exchange rate is found, call appropriate function */
     if (exchangeRate) {
       return convertPaymentAndBenchmarkToEuro(benchmark, exchangeRate, euroID);
     }
-    return benchmark; // Return the original benchmark if no exchange rate found
-  });
+    return benchmark;
+  }
 };

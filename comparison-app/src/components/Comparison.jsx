@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BarChart from "./BarChart";
+import LineChart from "./LineChart";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -9,11 +10,13 @@ import SelectYear from "./SelectYear";
 import DisplayCalculations from "./DisplayCalculations";
 import {
   convertToEuro,
+  filterBenchmarksByProvider,
   filterBenchmarksByYearProvider,
   getEuroID,
   getUniqueLists,
   totalSum,
 } from "../utilities/utils";
+import styles from "../styles/Comparison.module.css";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
@@ -100,17 +103,37 @@ const Comparison = () => {
   // Calculates the total of all benchmark prices in that year
   const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
 
+  /** This part of the code calculates data for showing annual trend per
+   * provider which is displayed in the line chart*/
+  const filteredBenchmarks = filterBenchmarksByProvider(
+    allBenchmarks,
+    selectedProviderName
+  );
+
+  const convertedBenchmarks =
+    selectedProviderName && filteredBenchmarks.length > 0
+      ? convertToEuro(filteredBenchmarks, currencyExchange, euroID)
+      : [];
+
+  const trendData = convertedBenchmarks
+    .map((item) => ({
+      year: item.year,
+      payment: item.payment,
+      benchmark: item.benchmark,
+    }))
+    .sort((a, b) => a.year - b.year);
+
   return (
     <>
       <Container className="py-5">
-        <div className="text-center">
+        <div className={`text-center ${styles.test}`}>
           <h1>Comparison App</h1>
           <p className="align-center my-4">
             This is a simple comparison app that allows you to compare the
             payment and benchmark values of different product providers. The app
             fetches data from an API and displays the results in a bar chart
-            format. You can select a provider and a year to see the payment and
-            benchmark values in Euro.
+            format. You can select a provider and a year to see the comparison
+            between the payment and benchmark values in Euro.
           </p>
         </div>
         <Row className="align-items-center justify-content-center">
@@ -131,27 +154,43 @@ const Comparison = () => {
                 />
               ) : null}
             </div>
+            <div>
+              <DisplayCalculations
+                totalSumPayment={totalSumPayment}
+                totalSumBenchmark={totalSumBenchmark}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
           </Col>
           <Col>
-            {/* <div className="chart-container"> */}
-            <BarChart
-              payment={totalSumPayment}
-              benchmark={totalSumBenchmark}
-              selectedYear={selectedYear}
-              selectedProviderName={selectedProviderName}
-            />
-            {/* </div> */}
+            <div className="chart-container">
+              <BarChart
+                payment={totalSumPayment}
+                benchmark={totalSumBenchmark}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
           </Col>
         </Row>
         <Row>
           <Col>
             {/* Displays converted payment and benchmark values in Euro  based
             on selected year and company*/}
-            <div>
+            {/* <div>
               <DisplayCalculations
                 totalSumPayment={totalSumPayment}
                 totalSumBenchmark={totalSumBenchmark}
                 selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div> */}
+          </Col>
+          <Col>
+            <div className="chart-container">
+              <LineChart
+                data={trendData}
                 selectedProviderName={selectedProviderName}
               />
             </div>
