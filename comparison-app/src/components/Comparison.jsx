@@ -147,21 +147,14 @@ const Comparison = () => {
           <Col>
             {/* Displays converted payment and benchmark values in Euro  based
             on selected year and company*/}
-            {selectedProviderName !== "Company Name" &&
-            selectedYear !== "Select Year" ? (
-              <div>
-                {convertedToEuro && convertedToEuro.length > 0 ? (
-                  <DisplayCalculations
-                    totalSumPayment={totalSumPayment}
-                    totalSumBenchmark={totalSumBenchmark}
-                  />
-                ) : (
-                  <p>
-                    No data available for {selectedProviderName} {selectedYear}.
-                  </p>
-                )}
-              </div>
-            ) : null}
+            <div>
+              <DisplayCalculations
+                totalSumPayment={totalSumPayment}
+                totalSumBenchmark={totalSumBenchmark}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
           </Col>
         </Row>
       </Container>
