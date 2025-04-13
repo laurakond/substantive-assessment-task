@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BarChart from "./BarChart";
 import LineChart from "./LineChart";
+import YearlyBarChart from "./YearlyBarChart";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,10 +11,10 @@ import SelectYear from "./SelectYear";
 import DisplayCalculations from "./DisplayCalculations";
 import {
   convertToEuro,
-  filterBenchmarksByProvider,
   filterBenchmarksByYearProvider,
   getEuroID,
   getUniqueLists,
+  getYearlyTotalsByProvider,
   totalSum,
 } from "../utilities/utils";
 import styles from "../styles/Comparison.module.css";
@@ -80,7 +81,7 @@ const Comparison = () => {
     setSelectedYear(clickedYear);
   };
 
-  // Filter the benchmarks based on the selected provider name that was clicked
+  // Filter the values based on the selected provider name that was clicked
   const filteredDataBasedOnYear = filterBenchmarksByYearProvider(
     allBenchmarks,
     selectedYear,
@@ -97,31 +98,19 @@ const Comparison = () => {
     euroID
   );
 
-  // Calculates the total of all payments in that year
+  // Calculates the total of all payments in that year used for Bar Chart
   const totalSumPayment = totalSum(convertedToEuro, "payment");
-
-  // Calculates the total of all benchmark prices in that year
+  // Calculates the total of all benchmarks in that year used for Bar Chart
   const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
 
-  /** This part of the code calculates data for showing annual trend per
-   * provider which is displayed in the line chart*/
-  const filteredBenchmarks = filterBenchmarksByProvider(
+  /** Calls helper function to get the totals of payments and benchmarks
+   * for each year used for line and yearly bar charts*/
+  const yearlyTotalsData = getYearlyTotalsByProvider(
     allBenchmarks,
-    selectedProviderName
+    selectedProviderName,
+    currencyExchange,
+    euroID
   );
-
-  const convertedBenchmarks =
-    selectedProviderName && filteredBenchmarks.length > 0
-      ? convertToEuro(filteredBenchmarks, currencyExchange, euroID)
-      : [];
-
-  const trendData = convertedBenchmarks
-    .map((item) => ({
-      year: item.year,
-      payment: item.payment,
-      benchmark: item.benchmark,
-    }))
-    .sort((a, b) => a.year - b.year);
 
   return (
     <>
@@ -136,24 +125,26 @@ const Comparison = () => {
             between the payment and benchmark values in Euro.
           </p>
         </div>
-        <Row className="align-items-center justify-content-center">
+        <Row className="text-center px-3 pb-4">
           <Col>
-            {/* Product provider name */}
             <SelectCompany
               selectedProviderName={selectedProviderName}
               uniqueProviderNames={uniqueProviderNames}
               handleCompanyButtonClick={handleCompanyButtonClick}
             />
-            {/* Renders a list of years once the provider is selected */}
-            <div>
-              {selectedProviderName ? (
-                <SelectYear
-                  selectedYear={selectedYear}
-                  uniqueYears={uniqueYears}
-                  handleYearButtonClick={handleYearButtonClick}
-                />
-              ) : null}
-            </div>
+          </Col>
+          <Col>
+            {selectedProviderName ? (
+              <SelectYear
+                selectedYear={selectedYear}
+                uniqueYears={uniqueYears}
+                handleYearButtonClick={handleYearButtonClick}
+              />
+            ) : null}
+          </Col>
+        </Row>
+        <Row className="align-items-center justify-content-center">
+          <Col>
             <div>
               <DisplayCalculations
                 totalSumPayment={totalSumPayment}
@@ -175,23 +166,20 @@ const Comparison = () => {
           </Col>
         </Row>
         <Row>
-          <Col>
-            {/* Displays converted payment and benchmark values in Euro  based
-            on selected year and company*/}
-            {/* <div>
-              <DisplayCalculations
-                totalSumPayment={totalSumPayment}
-                totalSumBenchmark={totalSumBenchmark}
-                selectedYear={selectedYear}
-                selectedProviderName={selectedProviderName}
-              />
-            </div> */}
-          </Col>
+          <Col></Col>
           <Col>
             <div className="chart-container">
               <LineChart
-                data={trendData}
+                yearlyTotalsData={yearlyTotalsData}
                 selectedProviderName={selectedProviderName}
+              />
+            </div>
+            <div className="chart-container">
+              <YearlyBarChart
+                payment={totalSumPayment}
+                benchmark={totalSumBenchmark}
+                selectedProviderName={selectedProviderName}
+                yearlyTotalsData={yearlyTotalsData}
               />
             </div>
           </Col>
