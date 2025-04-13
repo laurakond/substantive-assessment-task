@@ -7,7 +7,7 @@ const SelectYear = ({ selectedYear, uniqueYears, handleYearButtonClick }) => {
   return (
     <Row>
       <Col>
-        <h3>Select the year</h3>
+        <h4>Select the year</h4>
       </Col>
       <Col className="text-start">
         <Dropdown>

@@ -11,7 +11,7 @@ const SelectCompany = ({
   return (
     <Row>
       <Col>
-        <h3>Select the company</h3>
+        <h4>Select the company</h4>
       </Col>
       <Col>
         <Dropdown>
