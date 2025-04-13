@@ -80,35 +80,9 @@ export const convertToEuro = (
   currencyExchange,
   euroID
 ) => {
-  if (Array.isArray(filteredDataBasedOnYear)) {
-    return filteredDataBasedOnYear.map((benchmark) => {
-      /** checks if the currency is in Euro already, returns the
-       * benchmark as is*/
-      if (isAlreadyEuro(benchmark, euroID)) {
-        return {
-          ...benchmark,
-          payment: benchmark.payment,
-          benchmark: benchmark.benchmark,
-        };
-      }
-
-      /**  If the currency is not Euro, call appropriate function*/
-      const exchangeRate = getExchangeRate(benchmark, currencyExchange, euroID);
-
-      /** If an exchange rate is found, call appropriate function */
-      if (exchangeRate) {
-        return convertPaymentAndBenchmarkToEuro(
-          benchmark,
-          exchangeRate,
-          euroID
-        );
-      }
-      return benchmark; // Return the original benchmark if no exchange rate found
-    });
-  } else {
-    // If it's a single value (i.e., one benchmark/payment object), process it directly
-    const benchmark = filteredDataBasedOnYear;
-
+  return filteredDataBasedOnYear.map((benchmark) => {
+    /** checks if the currency is in Euro already, returns the
+     * benchmark as is*/
     if (isAlreadyEuro(benchmark, euroID)) {
       return {
         ...benchmark,
@@ -117,12 +91,15 @@ export const convertToEuro = (
       };
     }
 
+    /**  If the currency is not Euro, call appropriate function*/
     const exchangeRate = getExchangeRate(benchmark, currencyExchange, euroID);
+
+    /** If an exchange rate is found, call appropriate function */
     if (exchangeRate) {
       return convertPaymentAndBenchmarkToEuro(benchmark, exchangeRate, euroID);
     }
     return benchmark;
-  }
+  });
 };
 
 export const getYearlyTotalsByProvider = (
