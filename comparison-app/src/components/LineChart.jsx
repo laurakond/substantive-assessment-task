@@ -21,27 +21,25 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({ selectedProviderName, data }) => {
-  const labels = [...new Set(data.map((d) => d.year))].sort((a, b) => a - b);
+const LineChart = ({ selectedProviderName, yearlyTotalsData }) => {
+  const labels = yearlyTotalsData.map((item) => item.year);
   const chartData = {
     labels,
     datasets: [
       {
-        label: "Benchmark (€)",
-        data: labels.map(
-          (year) => data.find((d) => d.year === year)?.benchmark || 0
-        ),
+        label: "Payment (€)",
+        data: yearlyTotalsData.map((item) => item.payment),
         fill: false,
-        borderColor: "rgb(75, 192, 192)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 99, 132, 1)",
         tension: 0.1,
       },
       {
-        label: "Payment(€)",
-        data: labels.map(
-          (year) => data.find((d) => d.year === year)?.payment || 0
-        ),
+        label: "Benchmark (€)",
+        data: yearlyTotalsData.map((item) => item.benchmark),
         fill: false,
-        borderColor: "rgb(190, 90, 192)",
+        backgroundColor: "rgba(255, 159, 64, 0.2)",
+        borderColor: "rgba(255, 159, 64, 0.2)",
         tension: 0.1,
       },
     ],
@@ -55,8 +53,22 @@ const LineChart = ({ selectedProviderName, data }) => {
       title: {
         display: true,
         text: selectedProviderName
-          ? `Total ${selectedProviderName} trends`
+          ? `Total ${selectedProviderName} trends by year`
           : "Company",
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.dataset.label;
+            const value = context.raw;
+            const formattedValue = new Intl.NumberFormat("en-IE", {
+              style: "currency",
+              currency: "EUR",
+            }).format(value);
+
+            return `${label}: ${formattedValue}`;
+          },
+        },
       },
     },
   };
