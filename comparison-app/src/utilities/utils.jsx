@@ -9,6 +9,12 @@ export const totalSum = (array, prop) => {
   return array.reduce((accumulator, item) => accumulator + item[prop], 0);
 };
 
+export const formatCurrency = (amount) =>
+  new Intl.NumberFormat("en-IE", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amount);
+
 // Filter the benchmarks based on the selected provider name that was clicked
 export const filterBenchmarksByYearProvider = (benchmarks, year, provider) => {
   return benchmarks.filter(
@@ -61,6 +67,12 @@ const convertPaymentAndBenchmarkToEuro = (benchmark, exchangeRate, euroID) => {
       symbol: "€",
     },
   };
+};
+
+export const getPercentageDifference = (payment, benchmark) => {
+  // makes sure that the division by 0 is not throwing an error
+  if (benchmark === 0) return 0;
+  return ((payment - benchmark) / benchmark) * 100;
 };
 
 export const convertToEuro = (
