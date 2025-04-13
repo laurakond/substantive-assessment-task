@@ -12,12 +12,14 @@ import DisplayCalculations from "./DisplayCalculations";
 import {
   convertToEuro,
   filterBenchmarksByYearProvider,
+  formatCurrency,
   getEuroID,
+  getPercentageDifference,
   getUniqueLists,
   getYearlyTotalsByProvider,
   totalSum,
 } from "../utilities/utils";
-import styles from "../styles/Comparison.module.css";
+import TableDisplay from "./TableDisplay";
 
 const Comparison = () => {
   const [allBenchmarks, setAllBenchmarks] = useState([]);
@@ -98,10 +100,18 @@ const Comparison = () => {
     euroID
   );
 
-  // Calculates the total of all payments in that year used for Bar Chart
-  const totalSumPayment = totalSum(convertedToEuro, "payment");
-  // Calculates the total of all benchmarks in that year used for Bar Chart
-  const totalSumBenchmark = totalSum(convertedToEuro, "benchmark");
+  /** Calculates the total of all payments/benchmarks in that year used for
+   * Bar Chart and formats the currency*/
+  const totalPaymentValue = totalSum(convertedToEuro, "payment");
+  const totalBenchmarkValue = totalSum(convertedToEuro, "benchmark");
+
+  const totalSumPayment = formatCurrency(totalPaymentValue);
+  const totalSumBenchmark = formatCurrency(totalBenchmarkValue);
+
+  const difference = totalPaymentValue - totalBenchmarkValue;
+  const formattedDifference = formatCurrency(difference);
+
+  const noDataAvailable = totalPaymentValue === 0 && totalBenchmarkValue === 0;
 
   /** Calls helper function to get the totals of payments and benchmarks
    * for each year used for line and yearly bar charts*/
@@ -112,10 +122,15 @@ const Comparison = () => {
     euroID
   );
 
+  const percentageDifference = getPercentageDifference(
+    totalPaymentValue,
+    totalBenchmarkValue
+  ).toFixed(2);
+
   return (
     <>
       <Container className="py-5">
-        <div className={`text-center ${styles.test}`}>
+        <div className="text-center">
           <h1>Comparison App</h1>
           <p className="align-center my-4">
             This is a simple comparison app that allows you to compare the
@@ -147,18 +162,25 @@ const Comparison = () => {
           <Col>
             <div>
               <DisplayCalculations
-                totalSumPayment={totalSumPayment}
-                totalSumBenchmark={totalSumBenchmark}
                 selectedYear={selectedYear}
                 selectedProviderName={selectedProviderName}
+                noDataAvailable={noDataAvailable}
+              />
+            </div>
+            <div>
+              <TableDisplay
+                totalSumPayment={totalSumPayment}
+                totalSumBenchmark={totalSumBenchmark}
+                percentageDifference={percentageDifference}
+                formattedDifference={formattedDifference}
               />
             </div>
           </Col>
           <Col>
             <div className="chart-container">
               <BarChart
-                payment={totalSumPayment}
-                benchmark={totalSumBenchmark}
+                payment={totalPaymentValue}
+                benchmark={totalBenchmarkValue}
                 selectedYear={selectedYear}
                 selectedProviderName={selectedProviderName}
               />
@@ -166,14 +188,8 @@ const Comparison = () => {
           </Col>
         </Row>
         <Row>
-          <Col></Col>
           <Col>
-            <div className="chart-container">
-              <LineChart
-                yearlyTotalsData={yearlyTotalsData}
-                selectedProviderName={selectedProviderName}
-              />
-            </div>
+            {" "}
             <div className="chart-container">
               <YearlyBarChart
                 payment={totalSumPayment}
@@ -182,6 +198,22 @@ const Comparison = () => {
                 yearlyTotalsData={yearlyTotalsData}
               />
             </div>
+          </Col>
+          <Col>
+            <div className="chart-container">
+              <LineChart
+                yearlyTotalsData={yearlyTotalsData}
+                selectedProviderName={selectedProviderName}
+              />
+            </div>
+            {/* <div className="chart-container">
+              <YearlyBarChart
+                payment={totalSumPayment}
+                benchmark={totalSumBenchmark}
+                selectedProviderName={selectedProviderName}
+                yearlyTotalsData={yearlyTotalsData}
+              />
+            </div> */}
           </Col>
         </Row>
       </Container>
