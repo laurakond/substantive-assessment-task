@@ -112,3 +112,27 @@ export const convertToEuro = (
     return benchmark;
   }
 };
+
+export const getYearlyTotalsByProvider = (
+  benchmarks,
+  provider,
+  currencyExchange,
+  euroID
+) => {
+  const filteredValues = filterBenchmarksByProvider(benchmarks, provider);
+  const convertedValue = convertToEuro(
+    filteredValues,
+    currencyExchange,
+    euroID
+  );
+  const yearList = getUniqueLists(convertedValue, "year");
+  const yearlyTotals = yearList.map((year) => {
+    const totalsData = convertedValue.filter((entry) => entry.year === year);
+    return {
+      year,
+      payment: totalSum(totalsData, "payment"),
+      benchmark: totalSum(totalsData, "benchmark"),
+    };
+  });
+  return yearlyTotals.sort((a, b) => a.year - b.year);
+};
