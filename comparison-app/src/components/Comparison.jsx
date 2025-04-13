@@ -8,7 +8,6 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import SelectCompany from "./SelectCompany";
 import SelectYear from "./SelectYear";
-import DisplayCalculations from "./DisplayCalculations";
 import {
   convertToEuro,
   filterBenchmarksByYearProvider,
@@ -40,7 +39,9 @@ const Comparison = () => {
         );
         setAllBenchmarks(response.data.product_benchmarks);
       } catch (error) {
-        console.error("Error fetching product benchmark data:", error);
+        /** console.error("Error fetching product benchmark data:", error);
+         * left as commented out code for the ease of debugging in the future
+         */
       }
     };
     fetchProductBenchmarkData();
@@ -60,7 +61,9 @@ const Comparison = () => {
         );
         setCurrencyExchange(response.data.exchange_rates);
       } catch (error) {
-        console.error("Error fetching currency exchange data:", error);
+        /**console.error("Error fetching currency exchange data:", error);
+         * left as commented out code for the ease of debugging in the future
+         */
       }
     };
     fetchExchangeRatesData();
@@ -129,7 +132,7 @@ const Comparison = () => {
 
   return (
     <>
-      <Container className="py-5">
+      <Container className="py-3">
         <div className="text-center">
           <h1>Comparison App</h1>
           <p className="align-center my-4">
@@ -158,14 +161,13 @@ const Comparison = () => {
             ) : null}
           </Col>
         </Row>
-        <Row className="align-items-center justify-content-center">
+
+        <Row className="align-items-center justify-content-center mt-4">
           <Col>
-            <div>
-              <DisplayCalculations
-                selectedYear={selectedYear}
-                selectedProviderName={selectedProviderName}
-                noDataAvailable={noDataAvailable}
-              />
+            <div className="py-4 text-center">
+              <h5 className="text-center">
+                {selectedProviderName} breakdown for {selectedYear}
+              </h5>
             </div>
             <div>
               <TableDisplay
@@ -173,6 +175,9 @@ const Comparison = () => {
                 totalSumBenchmark={totalSumBenchmark}
                 percentageDifference={percentageDifference}
                 formattedDifference={formattedDifference}
+                noDataAvailable={noDataAvailable}
+                selectedYear={selectedYear}
+                selectedProviderName={selectedProviderName}
               />
             </div>
           </Col>
@@ -187,9 +192,8 @@ const Comparison = () => {
             </div>
           </Col>
         </Row>
-        <Row>
+        <Row className="mt-4">
           <Col>
-            {" "}
             <div className="chart-container">
               <YearlyBarChart
                 payment={totalSumPayment}
